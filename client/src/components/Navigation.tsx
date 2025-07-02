@@ -21,6 +21,7 @@ export default function Navigation() {
     { path: "/", label: "Dashboard", icon: Home },
     { path: "/pacientes", label: "Pacientes", icon: Users },
     { path: "/consultas", label: "Consultas", icon: Calendar },
+    { path: "/citas", label: "Citas", icon: Calendar },
     { path: "/reportes", label: "Reportes", icon: BarChart3 },
   ];
 
@@ -44,14 +45,14 @@ export default function Navigation() {
                   const isActive = location === item.path;
                   return (
                     <Link key={item.path} href={item.path}>
-                      <a className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors ${
+                      <span className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors cursor-pointer ${
                         isActive
                           ? "text-medical-blue bg-blue-50"
                           : "text-medical-gray hover:text-medical-dark"
                       }`}>
                         <Icon className="h-4 w-4 mr-1" />
                         {item.label}
-                      </a>
+                      </span>
                     </Link>
                   );
                 })}
@@ -66,9 +67,9 @@ export default function Navigation() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2 text-sm font-medium text-medical-gray hover:text-medical-dark">
                   <div className="h-8 w-8 rounded-full bg-medical-blue text-white flex items-center justify-center font-semibold">
-                    {user?.firstName?.[0] || "U"}
+                    {(user as any)?.firstName?.[0] || "U"}
                   </div>
-                  <span>{user?.firstName} {user?.lastName}</span>
+                  <span>{(user as any)?.firstName} {(user as any)?.lastName}</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>

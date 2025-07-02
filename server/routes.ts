@@ -90,10 +90,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const timestamp = Date.now().toString().slice(-6);
       const medicalRecordNumber = `MED-${new Date().getFullYear()}-${timestamp}`;
       
-      const patient = await storage.createPatient({
+      const patientData = {
         ...validatedData,
         medicalRecordNumber,
-      });
+        isActive: true,
+      };
+      const patient = await storage.createPatient(patientData);
       
       res.status(201).json(patient);
     } catch (error) {
