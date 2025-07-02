@@ -82,20 +82,23 @@ export class DatabaseStorage implements IStorage {
 
   // Patient operations
   async getPatients(search?: string, limit = 50, offset = 0): Promise<Patient[]> {
-    let query = db.select().from(patients).where(eq(patients.isActive, true));
-    
     if (search) {
-      query = query.where(
-        or(
-          like(patients.firstName, `%${search}%`),
-          like(patients.lastName, `%${search}%`),
-          like(patients.identificationNumber, `%${search}%`),
-          like(patients.medicalRecordNumber, `%${search}%`)
+      return await db.select().from(patients).where(
+        and(
+          eq(patients.isActive, true),
+          or(
+            like(patients.firstName, `%${search}%`),
+            like(patients.lastName, `%${search}%`),
+            like(patients.identificationNumber, `%${search}%`),
+            like(patients.medicalRecordNumber, `%${search}%`)
+          )
         )
-      );
+      ).limit(limit).offset(offset).orderBy(desc(patients.updatedAt));
+    } else {
+      return await db.select().from(patients)
+        .where(eq(patients.isActive, true))
+        .limit(limit).offset(offset).orderBy(desc(patients.updatedAt));
     }
-    
-    return await query.limit(limit).offset(offset).orderBy(desc(patients.updatedAt));
   }
 
   async getPatient(id: number): Promise<Patient | undefined> {
@@ -108,7 +111,7 @@ export class DatabaseStorage implements IStorage {
     return patient;
   }
 
-  async createPatient(patient: InsertPatient): Promise<Patient> {
+  async createPatient(patient: any): Promise<Patient> {
     const [newPatient] = await db.insert(patients).values(patient).returning();
     return newPatient;
   }
@@ -124,13 +127,14 @@ export class DatabaseStorage implements IStorage {
 
   // Consultation operations
   async getConsultations(patientId?: number, limit = 50): Promise<Consultation[]> {
-    let query = db.select().from(consultations);
-    
     if (patientId) {
-      query = query.where(eq(consultations.patientId, patientId));
+      return await db.select().from(consultations)
+        .where(eq(consultations.patientId, patientId))
+        .limit(limit).orderBy(desc(consultations.consultationDate));
+    } else {
+      return await db.select().from(consultations)
+        .limit(limit).orderBy(desc(consultations.consultationDate));
     }
-    
-    return await query.limit(limit).orderBy(desc(consultations.consultationDate));
   }
 
   async getConsultation(id: number): Promise<Consultation | undefined> {

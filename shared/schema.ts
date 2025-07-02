@@ -159,6 +159,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 // Insert schemas
 export const insertPatientSchema = createInsertSchema(patients).omit({
   id: true,
+  medicalRecordNumber: true,
   createdAt: true,
   updatedAt: true,
 });
