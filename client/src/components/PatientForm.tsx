@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -102,6 +102,9 @@ export default function PatientForm({ onClose }: PatientFormProps) {
           <DialogTitle className="text-xl font-bold text-medical-dark">
             Registrar Nuevo Paciente
           </DialogTitle>
+          <DialogDescription>
+            Complete los datos personales y de contacto del nuevo paciente
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
