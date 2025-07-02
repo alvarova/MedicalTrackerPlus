@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -59,9 +59,9 @@ export default function PatientModal({ patient, onClose }: PatientModalProps) {
                 <DialogTitle className="text-xl font-bold text-medical-dark">
                   {patient.firstName} {patient.lastName}
                 </DialogTitle>
-                <p className="text-medical-gray">
+                <DialogDescription className="text-medical-gray">
                   Cédula: {patient.identificationNumber} | Historia: {patient.medicalRecordNumber}
-                </p>
+                </DialogDescription>
                 <div className="flex items-center space-x-4 mt-1">
                   <span className="text-sm text-medical-gray">
                     {calculateAge(patient.dateOfBirth)} años

@@ -32,10 +32,10 @@ export default function Navigation() {
           <div className="flex items-center space-x-4">
             <div className="flex-shrink-0">
               <Link href="/">
-                <h1 className="text-xl font-bold text-medical-blue flex items-center cursor-pointer">
+                <div className="text-xl font-bold text-medical-blue flex items-center cursor-pointer">
                   <Heart className="h-6 w-6 mr-2" />
                   MedSystem
-                </h1>
+                </div>
               </Link>
             </div>
             <div className="hidden md:block">
@@ -45,14 +45,14 @@ export default function Navigation() {
                   const isActive = location === item.path;
                   return (
                     <Link key={item.path} href={item.path}>
-                      <span className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors cursor-pointer ${
+                      <div className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors cursor-pointer ${
                         isActive
                           ? "text-medical-blue bg-blue-50"
                           : "text-medical-gray hover:text-medical-dark"
                       }`}>
                         <Icon className="h-4 w-4 mr-1" />
                         {item.label}
-                      </span>
+                      </div>
                     </Link>
                   );
                 })}
