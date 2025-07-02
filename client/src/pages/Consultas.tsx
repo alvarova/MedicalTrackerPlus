@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Stethoscope, Eye, Calendar } from "lucide-react";
 import ConsultationModal from "@/components/ConsultationModal";
+import PatientForm from "@/components/PatientForm";
 
 export default function Consultas() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [showPatientForm, setShowPatientForm] = useState(false);
 
   const { data: consultations, isLoading } = useQuery({
     queryKey: ["/api/consultations", searchTerm],
@@ -141,6 +143,16 @@ export default function Consultas() {
       {showConsultationModal && (
         <ConsultationModal
           onClose={() => setShowConsultationModal(false)}
+          onNewPatient={() => {
+            setShowConsultationModal(false);
+            setShowPatientForm(true);
+          }}
+        />
+      )}
+      
+      {showPatientForm && (
+        <PatientForm
+          onClose={() => setShowPatientForm(false)}
         />
       )}
     </div>
