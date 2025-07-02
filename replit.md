@@ -87,6 +87,13 @@ MedSystem is a comprehensive electronic medical records (EMR) application design
 
 Changelog:
 - July 02, 2025. Initial setup
+- July 02, 2025. Enhanced patient search functionality:
+  - Created PatientSearch component for searching by name or ID number
+  - Updated consultation creation to use patient search instead of manual ID entry
+  - Updated appointment scheduling with patient search and "New Patient" workflow
+  - Improved user flow: search → select patient → create consultation/appointment
+  - Added "New Patient" button for first-time patients
+  - Fixed console warnings (nested anchor tags and missing dialog descriptions)
 
 ## User Preferences
 

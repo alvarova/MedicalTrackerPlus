@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import PatientSearch from "./PatientSearch";
 
 const consultationSchema = z.object({
   patientId: z.number().min(1, "Seleccione un paciente"),
@@ -34,11 +35,13 @@ type ConsultationForm = z.infer<typeof consultationSchema>;
 interface ConsultationModalProps {
   patientId?: number;
   onClose: () => void;
+  onNewPatient?: () => void;
 }
 
-export default function ConsultationModal({ patientId, onClose }: ConsultationModalProps) {
+export default function ConsultationModal({ patientId, onClose, onNewPatient }: ConsultationModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   const form = useForm<ConsultationForm>({
     resolver: zodResolver(consultationSchema),
@@ -117,24 +120,53 @@ export default function ConsultationModal({ patientId, onClose }: ConsultationMo
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {!patientId && (
-              <FormField
-                control={form.control}
-                name="patientId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>ID del Paciente</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Ingrese el ID del paciente"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Buscar Paciente
+                  </label>
+                  <PatientSearch
+                    onPatientSelect={(patient) => {
+                      setSelectedPatient(patient);
+                      form.setValue("patientId", patient.id);
+                    }}
+                    onNewPatient={onNewPatient}
+                    placeholder="Buscar por nombre o cédula..."
+                    showNewPatientButton={true}
+                  />
+                </div>
+                
+                {selectedPatient && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-10 w-10 rounded-full bg-medical-blue text-white flex items-center justify-center font-semibold text-sm">
+                        {selectedPatient.firstName?.[0]}{selectedPatient.lastName?.[0]}
+                      </div>
+                      <div>
+                        <p className="font-medium text-medical-dark">
+                          {selectedPatient.firstName} {selectedPatient.lastName}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Cédula: {selectedPatient.identificationNumber} | Historia: {selectedPatient.medicalRecordNumber}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
-              />
+                
+                <FormField
+                  control={form.control}
+                  name="patientId"
+                  render={({ field }) => (
+                    <FormItem className="hidden">
+                      <FormControl>
+                        <Input type="hidden" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

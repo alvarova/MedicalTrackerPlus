@@ -9,12 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar, Clock, Plus, Eye, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import PatientSearch from "@/components/PatientSearch";
+import PatientForm from "@/components/PatientForm";
 
 const appointmentSchema = z.object({
   patientId: z.number().min(1, "Seleccione un paciente"),
@@ -31,6 +33,8 @@ export default function Citas() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [showPatientForm, setShowPatientForm] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   const form = useForm<AppointmentForm>({
     resolver: zodResolver(appointmentSchema),
@@ -252,28 +256,63 @@ export default function Citas() {
               <DialogTitle className="text-xl font-bold text-medical-dark">
                 Programar Nueva Cita
               </DialogTitle>
+              <DialogDescription>
+                Busque el paciente y complete los datos para programar una nueva cita médica
+              </DialogDescription>
             </DialogHeader>
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="patientId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ID del Paciente</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Ingrese el ID del paciente"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Buscar Paciente
+                    </label>
+                    <PatientSearch
+                      onPatientSelect={(patient) => {
+                        setSelectedPatient(patient);
+                        form.setValue("patientId", patient.id);
+                      }}
+                      onNewPatient={() => {
+                        setShowAppointmentModal(false);
+                        setShowPatientForm(true);
+                      }}
+                      placeholder="Buscar por nombre o cédula para programar cita..."
+                      showNewPatientButton={true}
+                    />
+                  </div>
+                  
+                  {selectedPatient && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-medical-blue text-white flex items-center justify-center font-semibold text-sm">
+                          {selectedPatient.firstName?.[0]}{selectedPatient.lastName?.[0]}
+                        </div>
+                        <div>
+                          <p className="font-medium text-medical-dark">
+                            {selectedPatient.firstName} {selectedPatient.lastName}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Cédula: {selectedPatient.identificationNumber} | Historia: {selectedPatient.medicalRecordNumber}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   )}
-                />
+                  
+                  <FormField
+                    control={form.control}
+                    name="patientId"
+                    render={({ field }) => (
+                      <FormItem className="hidden">
+                        <FormControl>
+                          <Input type="hidden" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
@@ -356,6 +395,13 @@ export default function Citas() {
             </Form>
           </DialogContent>
         </Dialog>
+      )}
+      
+      {/* Patient Form Modal */}
+      {showPatientForm && (
+        <PatientForm
+          onClose={() => setShowPatientForm(false)}
+        />
       )}
     </div>
   );
