@@ -1,28 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertPatientSchema, insertConsultationSchema, insertMedicalHistorySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Error al obtener usuario" });
-    }
-  });
-
   // Dashboard routes
-  app.get('/api/dashboard/stats', isAuthenticated, async (req, res) => {
+  app.get('/api/dashboard/stats', async (req, res) => {
     try {
       const stats = await storage.getDashboardStats();
       res.json(stats);
@@ -32,7 +16,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/dashboard/recent-patients', isAuthenticated, async (req, res) => {
+  app.get('/api/dashboard/recent-patients', async (req, res) => {
     try {
       const patients = await storage.getRecentPatients(10);
       res.json(patients);
@@ -42,7 +26,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/dashboard/today-appointments', isAuthenticated, async (req, res) => {
+  app.get('/api/dashboard/today-appointments', async (req, res) => {
     try {
       const appointments = await storage.getTodayAppointments();
       res.json(appointments);
@@ -53,7 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Patient routes
-  app.get('/api/patients', isAuthenticated, async (req, res) => {
+  app.get('/api/patients', async (req, res) => {
     try {
       const { search, limit = '50', offset = '0' } = req.query;
       const patients = await storage.getPatients(
@@ -68,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/patients/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/patients/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const patient = await storage.getPatient(id);
@@ -82,7 +66,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/patients', isAuthenticated, async (req, res) => {
+  app.post('/api/patients', async (req, res) => {
     try {
       const validatedData = insertPatientSchema.parse(req.body);
       
@@ -107,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/patients/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/patients/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertPatientSchema.partial().parse(req.body);
@@ -124,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Consultation routes
-  app.get('/api/consultations', isAuthenticated, async (req, res) => {
+  app.get('/api/consultations', async (req, res) => {
     try {
       const { patientId, limit = '50' } = req.query;
       const consultations = await storage.getConsultations(
@@ -138,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/patients/:patientId/consultations', isAuthenticated, async (req, res) => {
+  app.get('/api/patients/:patientId/consultations', async (req, res) => {
     try {
       const patientId = parseInt(req.params.patientId);
       const consultations = await storage.getConsultations(patientId);
@@ -149,9 +133,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/consultations', isAuthenticated, async (req: any, res) => {
+  app.post('/api/consultations', async (req: any, res) => {
     try {
-      const doctorId = req.user.claims.sub;
+      const doctorId = "mock_doctor_id"; // Hardcoded doctor ID
       const validatedData = insertConsultationSchema.parse({
         ...req.body,
         doctorId,
@@ -169,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Medical history routes
-  app.get('/api/patients/:patientId/medical-history', isAuthenticated, async (req, res) => {
+  app.get('/api/patients/:patientId/medical-history', async (req, res) => {
     try {
       const patientId = parseInt(req.params.patientId);
       const history = await storage.getMedicalHistory(patientId);
@@ -180,7 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/patients/:patientId/medical-history', isAuthenticated, async (req, res) => {
+  app.post('/api/patients/:patientId/medical-history', async (req, res) => {
     try {
       const patientId = parseInt(req.params.patientId);
       const validatedData = insertMedicalHistorySchema.parse({
@@ -199,7 +183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/patients/:patientId/medical-history', isAuthenticated, async (req, res) => {
+  app.put('/api/patients/:patientId/medical-history', async (req, res) => {
     try {
       const patientId = parseInt(req.params.patientId);
       const validatedData = insertMedicalHistorySchema.partial().parse(req.body);
@@ -216,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document routes
-  app.get('/api/patients/:patientId/documents', isAuthenticated, async (req, res) => {
+  app.get('/api/patients/:patientId/documents', async (req, res) => {
     try {
       const patientId = parseInt(req.params.patientId);
       const documents = await storage.getPatientDocuments(patientId);
@@ -230,3 +214,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   return httpServer;
 }
+

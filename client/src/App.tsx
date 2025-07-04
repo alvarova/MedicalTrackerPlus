@@ -13,21 +13,14 @@ import Citas from "@/pages/Citas";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/pacientes" component={Patients} />
-          <Route path="/consultas" component={Consultas} />
-          <Route path="/reportes" component={Reportes} />
-          <Route path="/citas" component={Citas} />
-        </>
-      )}
+      <Route path="/" component={Dashboard} />
+      <Route path="/pacientes" component={Patients} />
+      <Route path="/consultas" component={Consultas} />
+      <Route path="/reportes" component={Reportes} />
+      <Route path="/citas" component={Citas} />
+      <Route path="/landing" component={Landing} />
       <Route component={NotFound} />
     </Switch>
   );

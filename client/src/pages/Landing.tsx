@@ -1,10 +1,13 @@
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Shield, Users, FileText } from "lucide-react";
 
 export default function Landing() {
+  const [, setLocation] = useLocation();
+
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    setLocation("/");
   };
 
   return (
@@ -22,7 +25,7 @@ export default function Landing() {
             onClick={handleLogin}
             className="bg-medical-blue hover:bg-blue-700 text-white px-8 py-3 text-lg"
           >
-            Iniciar Sesión
+            Ingresar
           </Button>
         </div>
 
